@@ -15,8 +15,6 @@ namespace Castle.MonoRail.Rest
 					return "GET";
 				case "CREATE":
 					return "POST";
-				case "OPTIONS":
-					return "OPTIONS";
 				case "UPDATE":
 					return "PUT";
 				case "DESTROY":
@@ -29,23 +27,17 @@ namespace Castle.MonoRail.Rest
 		// Associates known available actions with relevant Http verbs 
 		public static string GetAllowedMethods(IDictionary actions)
 		{
-			var allowedMwethods = string.Empty;
-			var count = 0;
+			var allowedMethods = new List<string> { "OPTIONS" };
+			
 			foreach (DictionaryEntry entry in actions)
 			{
 				var methodName = GetMethodName(entry.Key.ToString());
-				if (!string.IsNullOrEmpty(methodName) && !allowedMwethods.Contains(methodName))
-				{
-					allowedMwethods += GetMethodName(entry.Key.ToString());
-					if (count < actions.Count - 1)
-					{
-						allowedMwethods += ", ";
-					}
-				}
 				
-				count++;
+				if (!string.IsNullOrEmpty(methodName) && !allowedMethods.Contains(methodName))
+					allowedMethods.Add(methodName);
 			}
-			return allowedMwethods;
+
+			return string.Join(",", allowedMethods.ToArray());
 		}
 	}
 }

@@ -34,29 +34,17 @@ namespace Castle.MonoRail.Rest
 	public class RestfulController : SmartDispatcherController 
 	{
 		private string _controllerAction;
-		private const string OptionsString = "Options";
-		IDictionary allowedActions;
-		IRequest currentRequest;
-
+		
 	    protected override MethodInfo SelectMethod(string action, IDictionary actions, IRequest request,
 	                                               IDictionary<string, object> actionArgs, ActionType actionType)
 	    {
-	    	string restAction = ActionSelector.GetRestActionName(action, actions, HttpMethod);
-			allowedActions = actions;
-	    	currentRequest = request;
-	    	
+	    	var restAction = ActionSelector.GetRestActionName(action, actions, HttpMethod);
+			
 			// For Options Http methods, ignore the current   
 			// action and invoke the Options() action instead
 			if (HttpMethod.ToUpper() == "OPTIONS")
-			{
-				var optionsMethodInfo = GetType().GetMethod(OptionsString, BindingFlags.NonPublic | BindingFlags.Instance);
-				if (!actions.Contains(OptionsString))
-				{
-					allowedActions.Add(OptionsString, optionsMethodInfo);
-				}
-				return optionsMethodInfo;
-			}
-
+				return GetType().GetMethod("Options", BindingFlags.NonPublic | BindingFlags.Instance);
+			
 	    	if (ActionSelector.IsCollectionAction(action))
 			{
 				switch (HttpMethod.ToUpper())
@@ -93,30 +81,16 @@ namespace Castle.MonoRail.Rest
 			return base.SelectMethod(action, actions, request, actionArgs, actionType);
 		}
 
-		// The response when an Options method is detected
+		protected override object InvokeMethod(MethodInfo method, IRequest request, IDictionary<string, object> extraArgs)
+		{
+			CrossOriginHeaders.WriteToResponse(Request, Response, Context.CurrentControllerContext.ControllerDescriptor.Actions);
+
+			return base.InvokeMethod(method, request, extraArgs);
+		}
+
 		protected void Options()
 		{
 			CancelView();
-			
-			var allowedMethods = MethodSelector.GetAllowedMethods(allowedActions);
-			if (!string.IsNullOrEmpty(allowedMethods))
-			{
-				Response.AppendHeader("Access-Control-Allow-Methods", allowedMethods);
-			}
-
-			var allowSettings = WebConfigFile.GetAllowConfigSettings(currentRequest);
-			if (!string.IsNullOrEmpty(allowSettings["Origin"]))
-			{
-				Response.AppendHeader("Access-Control-Allow-Origin", allowSettings["Origin"]);
-			}
-			if (!string.IsNullOrEmpty(allowSettings["Header"]))
-			{
-				Response.AppendHeader("Access-Control-Allow-Headers", allowSettings["Header"]);
-			}
-			if (!string.IsNullOrEmpty(allowSettings["Credentials"]))
-			{
-				Response.AppendHeader("Access-Control-Allow-Credentials", allowSettings["Credentials"]);
-			}
 		}
 
 		protected void RespondTo(Action<ResponseFormat> collectFormats)

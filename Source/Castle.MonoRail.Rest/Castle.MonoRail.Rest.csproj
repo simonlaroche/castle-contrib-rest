@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{0277D4B3-481B-433C-AD89-25E2928F8B5D}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -61,7 +61,7 @@
     <Compile Include="ActionSelector.cs" />
     <Compile Include="Binding\XmlBindAttribute.cs" />
     <Compile Include="Binding\XmlTreeBuilder.cs" />
-    <Compile Include="WebConfigFile.cs" />
+    <Compile Include="CrossOriginHeaders.cs" />
     <Compile Include="ControllerBridge.cs" />
     <Compile Include="DefaultRestVerbResolver.cs" />
     <Compile Include="DefaultUrlProvider.cs" />
